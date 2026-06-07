@@ -31,4 +31,4 @@ jobs:
             sudo ./scripts/install_server.sh
             # sudo chown -R www-data:www-data "$APP_DIR"
             sudo systemctl restart weather-warning.service
-            # sudo systemctl restart weather-warning-fetch.timer || true
+            sudo systemctl restart weather-warning-fetch.timer || true
