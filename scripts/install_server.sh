@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
-APP_DIR=/var/www/weather-warning-app
+set -e
+APP_DIR=/var/www/weather-warning
 cd "$APP_DIR"
 python3 -m venv .venv
 . .venv/bin/activate
