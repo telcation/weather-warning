@@ -1,0 +1,12 @@
+[Unit]
+Description=Scheduled Fetch Osaka City Weather Warnings
+
+[Timer]
+# 月〜金 08:30 / 12:30 / 16:30
+OnCalendar=Mon..Fri *-*-* 08:30:00
+OnCalendar=Mon..Fri *-*-* 12:30:00
+OnCalendar=Mon..Fri *-*-* 16:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

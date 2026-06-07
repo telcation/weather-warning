@@ -1,0 +1,14 @@
+[Unit]
+Description=Weather Warning Flask Web
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/weather-warning-app
+EnvironmentFile=/var/www/weather-warning-app/.env
+ExecStart=/var/www/weather-warning-app/.venv/bin/gunicorn -w 2 -b 127.0.0.1:5010 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

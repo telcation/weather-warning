@@ -1,0 +1,11 @@
+[Unit]
+Description=Fetch Osaka City Weather Warnings
+After=network.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/weather-warning-app
+EnvironmentFile=/var/www/weather-warning-app/.env
+ExecStart=/var/www/weather-warning-app/.venv/bin/python fetch_once.py

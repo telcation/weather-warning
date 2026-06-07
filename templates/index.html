@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>大阪市 警報・注意報</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; background: #f7f7f7; color: #222; }
+        main { max-width: 960px; margin: auto; background: white; padding: 2rem; border-radius: 14px; box-shadow: 0 4px 16px #0001; }
+        h1 { margin-top: 0; }
+        .ok { padding: 1rem; background: #e8f5e9; border-left: 6px solid #43a047; }
+        .warn { padding: 1rem; background: #fff3e0; border-left: 6px solid #fb8c00; }
+        .error { padding: 1rem; background: #ffebee; border-left: 6px solid #e53935; }
+        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+        th, td { border: 1px solid #ddd; padding: .7rem; text-align: left; vertical-align: top; }
+        th { background: #f0f0f0; }
+        button { font-size: 1rem; padding: .6rem 1rem; cursor: pointer; }
+        .small { color: #666; font-size: .9rem; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>大阪市 警報・注意報</h1>
+
+    {% if error %}
+        <div class="error">取得エラー：{{ error }}</div>
+    {% elif result %}
+        <p class="small">最終確認：{{ result.checked_at }}</p>
+
+        {% if result.warnings %}
+            <div class="warn">
+                <strong>現在発表中</strong>
+                <ul>
+                    {% for w in result.warnings %}
+                        <li>{{ w }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="ok">現在、大阪市に発表中の警報・注意報はありません。</div>
+        {% endif %}
+    {% endif %}
+
+    <form method="post" action="{{ base_path }}/fetch" style="margin-top:1.5rem;">
+        <button type="submit">今すぐ取得して履歴に保存</button>
+    </form>
+
+    <h2>取得履歴</h2>
+    <table>
+        <tr>
+            <th>日時</th>
+            <th>対象</th>
+            <th>発表中</th>
+        </tr>
+        {% for log in logs %}
+            <tr>
+                <td>{{ log.checked_at }}</td>
+                <td>{{ log.city_name }}</td>
+                <td>{{ log.warnings_text }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</main>
+</body>
+</html>

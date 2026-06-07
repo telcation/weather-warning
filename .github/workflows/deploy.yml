@@ -1,0 +1,34 @@
+name: Deploy weather-warning-app
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy by SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            APP_DIR=/var/www/weather-warning-app
+            if [ ! -d "$APP_DIR/.git" ]; then
+              sudo mkdir -p "$APP_DIR"
+              sudo chown -R $USER:$USER "$APP_DIR"
+              git clone https://github.com/${{ github.repository }}.git "$APP_DIR"
+            fi
+            cd "$APP_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+            chmod +x scripts/install_server.sh
+            sudo ./scripts/install_server.sh
+            sudo chown -R www-data:www-data "$APP_DIR"
+            sudo systemctl restart weather-warning-web.service
+            sudo systemctl restart weather-warning-fetch.timer || true
