@@ -29,6 +29,6 @@ jobs:
             git reset --hard origin/main
             chmod +x scripts/install_server.sh
             sudo ./scripts/install_server.sh
-            sudo chown -R www-data:www-data "$APP_DIR"
+            # sudo chown -R www-data:www-data "$APP_DIR"
             sudo systemctl restart weather-warning.service
             # sudo systemctl restart weather-warning-fetch.timer || true
