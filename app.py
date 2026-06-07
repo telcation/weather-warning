@@ -39,6 +39,10 @@ def index():
 def fetch_and_save():
     result = fetch_city_warnings()
     save_result(result)
+
+    if BASE_PATH:
+        return redirect(BASE_PATH + "/")
+
     return redirect(url_for("index"))
 
 
