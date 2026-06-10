@@ -1,65 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>大阪市 警報・注意報</title>
+    <meta charset="UTF-8">
+    <title>大阪市 注意報・警報</title>
     <style>
-        body { font-family: system-ui, sans-serif; margin: 2rem; background: #f7f7f7; color: #222; }
-        main { max-width: 960px; margin: auto; background: white; padding: 2rem; border-radius: 14px; box-shadow: 0 4px 16px #0001; }
-        h1 { margin-top: 0; }
-        .ok { padding: 1rem; background: #e8f5e9; border-left: 6px solid #43a047; }
-        .warn { padding: 1rem; background: #fff3e0; border-left: 6px solid #fb8c00; }
-        .error { padding: 1rem; background: #ffebee; border-left: 6px solid #e53935; }
-        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
-        th, td { border: 1px solid #ddd; padding: .7rem; text-align: left; vertical-align: top; }
-        th { background: #f0f0f0; }
-        button { font-size: 1rem; padding: .6rem 1rem; cursor: pointer; }
-        .small { color: #666; font-size: .9rem; }
+        body {
+            font-family: sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #999;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #eee;
+        }
+
+        /* 自動実行で取得した行 */
+        .auto-row {
+            background-color: #e6f4ea;
+        }
+
+        /* 注意報あり */
+        .advisory-row {
+            background-color: #fff3cd;
+        }
+
+        /* 警報あり */
+        .warning-row {
+            background-color: #f8d7da;
+        }
     </style>
 </head>
 <body>
-<main>
-    <h1>大阪市 警報・注意報</h1>
+    <h1>大阪市 注意報・警報</h1>
 
-    {% if error %}
-        <div class="error">取得エラー：{{ error }}</div>
-    {% elif result %}
-        <p class="small">最終確認：{{ result.checked_at }}</p>
-
-        {% if result.warnings %}
-            <div class="warn">
-                <strong>現在発表中</strong>
-                <ul>
-                    {% for w in result.warnings %}
-                        <li>{{ w }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% else %}
-            <div class="ok">現在、大阪市に発表中の警報・注意報はありません。</div>
-        {% endif %}
-    {% endif %}
-
-    <form method="post" action="{{ base_path }}/fetch" style="margin-top:1.5rem;">
-        <button type="submit">今すぐ取得して履歴に保存</button>
+    <form action="{{ url_for('fetch_and_save') }}" method="post">
+        <button type="submit">最新情報を取得</button>
     </form>
 
-    <h2>取得履歴</h2>
     <table>
-        <tr>
-            <th>日時</th>
-            <th>対象</th>
-            <th>発表中</th>
-        </tr>
-        {% for log in logs %}
+        <thead>
             <tr>
-                <td>{{ log.checked_at }}</td>
-                <td>{{ log.city_name }}</td>
-                <td>{{ log.warnings_text }}</td>
+                <th>取得日時</th>
+                <th>地域</th>
+                <th>注意報・警報</th>
             </tr>
-        {% endfor %}
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                {% set row_class = "" %}
+
+                {% if "警報" in log.warnings_text %}
+                    {% set row_class = "warning-row" %}
+                {% elif "注意報" in log.warnings_text %}
+                    {% set row_class = "advisory-row" %}
+                {% elif log.source == "auto" %}
+                    {% set row_class = "auto-row" %}
+                {% endif %}
+
+                <tr class="{{ row_class }}">
+                    <td>{{ log.checked_at }}</td>
+                    <td>{{ log.city_name }}</td>
+                    <td>{{ log.warnings_text }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
     </table>
-</main>
 </body>
 </html>

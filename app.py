@@ -38,11 +38,12 @@ def index():
 @app.route("/fetch", methods=["POST"])
 def fetch_and_save():
     result = fetch_city_warnings()
-    save_result(result)
+
+    # 画面ボタンからの取得
+    save_result(result, source="manual")
 
     if BASE_PATH:
         return redirect(BASE_PATH + "/")
-
     return redirect(url_for("index"))
 
 

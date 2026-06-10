@@ -1,12 +1,17 @@
-import requests
+import json
 from datetime import datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
+
+import requests
 
 JST = ZoneInfo("Asia/Tokyo")
 
 PREF_CODE = "270000"
 CITY_CODE = "2710000"
 CITY_NAME = "大阪市"
+
+TEST_DATA_FILE = Path.cwd() / "TestData.txt"
 
 WARNING_NAMES = {
     "03": "大雨警報",
@@ -34,12 +39,19 @@ WARNING_NAMES = {
 ACTIVE_STATUSES = {"発表", "継続"}
 
 
-def fetch_city_warnings():
-    url = f"https://www.jma.go.jp/bosai/warning/data/warning/{PREF_CODE}.json"
+def load_warning_data():
+    if TEST_DATA_FILE.exists():
+        with TEST_DATA_FILE.open("r", encoding="utf-8") as f:
+            return json.load(f)
 
+    url = f"https://www.jma.go.jp/bosai/warning/data/warning/{PREF_CODE}.json"
     response = requests.get(url, timeout=10)
     response.raise_for_status()
-    data = response.json()
+    return response.json()
+
+
+def fetch_city_warnings():
+    data = load_warning_data()
 
     for area_type in data.get("areaTypes", []):
         for area in area_type.get("areas", []):
@@ -51,9 +63,7 @@ def fetch_city_warnings():
                     status = warning.get("status")
 
                     if status in ACTIVE_STATUSES:
-                        warnings.append(
-                            WARNING_NAMES.get(code, f"不明コード:{code}")
-                        )
+                        warnings.append(WARNING_NAMES.get(code, f"不明コード:{code}"))
 
                 return {
                     "city_name": CITY_NAME,
