@@ -46,7 +46,7 @@
 
         /* 列幅 */
         col:nth-child(1) {
-            width: 15%;
+            width: 20%;
         }
 
         col:nth-child(2) {
@@ -54,7 +54,46 @@
         }
 
         col:nth-child(3) {
-            width: 70%;
+            width: 65%;
+        }
+
+        /* 折り返し禁止 */
+        th:nth-child(1),
+        td:nth-child(1) {
+            white-space: nowrap;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+            white-space: nowrap;
+        }
+
+        /* スマホ対応 */
+        @media (max-width: 768px) {
+            body {
+                margin: 10px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th,
+            td {
+                padding: 6px;
+            }
+
+            col:nth-child(1) {
+                width: 28%;
+            }
+
+            col:nth-child(2) {
+                width: 16%;
+            }
+
+            col:nth-child(3) {
+                width: 56%;
+            }
         }
 
         /* 自動取得（発表なし） */
@@ -117,7 +156,7 @@
                 {% endif %}
 
                 <tr class="{{ row_class }}">
-                    <td>{{ log.checked_at }}</td>
+                    <td>{{ log.checked_at[5:16] }}</td>
                     <td>{{ log.city_name }}</td>
                     <td>{{ log.warnings_text }}</td>
                 </tr>
