@@ -2,11 +2,13 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>大阪市 注意報・警報</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大阪市 注意報・警報情報</title>
+
     <style>
         body {
             font-family: sans-serif;
-            margin: 40px;
+            margin: 20px;
         }
 
         h1 {
@@ -20,47 +22,79 @@
         button {
             padding: 8px 16px;
             font-size: 16px;
+            cursor: pointer;
         }
 
         table {
-            border-collapse: collapse;
             width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
         }
 
-        th, td {
-            border: 1px solid #999;
+        th,
+        td {
+            border: 1px solid #cccccc;
             padding: 8px;
             text-align: left;
+            vertical-align: top;
+            word-break: break-word;
         }
 
         th {
-            background-color: #eee;
+            background-color: #f0f0f0;
         }
 
-        /* 自動実行で取得した行 */
+        /* 列幅 */
+        col:nth-child(1) {
+            width: 15%;
+        }
+
+        col:nth-child(2) {
+            width: 15%;
+        }
+
+        col:nth-child(3) {
+            width: 70%;
+        }
+
+        /* 自動取得（発表なし） */
         .auto-row {
             background-color: #e6f4ea;
         }
 
-        /* 注意報あり */
+        /* 注意報 */
         .advisory-row {
             background-color: #fff3cd;
         }
 
-        /* 警報あり */
+        /* 警報 */
         .warning-row {
             background-color: #f8d7da;
         }
     </style>
 </head>
 <body>
-    <h1>大阪市 注意報・警報</h1>
+
+    <!-- VSCode/PyCharm 未使用セレクター警告対策 -->
+    <div hidden>
+        <span class="auto-row"></span>
+        <span class="advisory-row"></span>
+        <span class="warning-row"></span>
+    </div>
+
+    <h1>大阪市 注意報・警報情報</h1>
 
     <form action="{{ url_for('fetch_and_save') }}" method="post">
         <button type="submit">最新情報を取得</button>
     </form>
 
     <table>
+        <colgroup>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+
         <thead>
             <tr>
                 <th>取得日時</th>
@@ -68,8 +102,10 @@
                 <th>注意報・警報</th>
             </tr>
         </thead>
+
         <tbody>
             {% for log in logs %}
+
                 {% set row_class = "" %}
 
                 {% if "警報" in log.warnings_text %}
@@ -85,8 +121,10 @@
                     <td>{{ log.city_name }}</td>
                     <td>{{ log.warnings_text }}</td>
                 </tr>
+
             {% endfor %}
         </tbody>
     </table>
+
 </body>
 </html>
