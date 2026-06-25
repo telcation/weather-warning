@@ -44,7 +44,7 @@ def load_warning_data():
         with TEST_DATA_FILE.open("r", encoding="utf-8") as f:
             return json.load(f)
 
-    url = f"https://www.jma.go.jp/bosai/warning/data/warning/{PREF_CODE}.json"
+    url = f"https://www.jma.go.jp/bosai/warning/data/r8/{PREF_CODE}.json"  # r8に変更
     response = requests.get(url, timeout=10)
     response.raise_for_status()
     return response.json()
@@ -53,22 +53,21 @@ def load_warning_data():
 def fetch_city_warnings():
     data = load_warning_data()
 
-    for area_type in data.get("areaTypes", []):
-        for area in area_type.get("areas", []):
-            if area.get("code") == CITY_CODE:
-                warnings = []
+    # data はリスト。先頭要素（最新）を使う
+    latest = data[0]
 
-                for warning in area.get("warnings", []):
-                    code = warning.get("code")
-                    status = warning.get("status")
-
-                    if status in ACTIVE_STATUSES:
-                        warnings.append(WARNING_NAMES.get(code, f"不明コード:{code}"))
-
-                return {
-                    "city_name": CITY_NAME,
-                    "checked_at": datetime.now(JST).strftime("%Y-%m-%d %H:%M:%S"),
-                    "warnings": warnings,
-                }
+    for area in latest["warning"].get("class20Items", []):
+        if area.get("areaCode") == CITY_CODE:
+            warnings = []
+            for kind in area.get("kinds", []):
+                code = kind.get("code")
+                status = kind.get("status")
+                if status in ACTIVE_STATUSES:
+                    warnings.append(WARNING_NAMES.get(code, f"不明コード:{code}"))
+            return {
+                "city_name": CITY_NAME,
+                "checked_at": datetime.now(JST).strftime("%Y-%m-%d %H:%M:%S"),
+                "warnings": warnings,
+            }
 
     raise ValueError(f"{CITY_NAME}コード({CITY_CODE})が見つかりません")
