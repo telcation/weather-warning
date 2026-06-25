@@ -45,71 +45,54 @@
         }
 
         /* 列幅 */
-        col:nth-child(1) {
-            width: 20%;
-        }
-
-        col:nth-child(2) {
-            width: 15%;
-        }
-
-        col:nth-child(3) {
-            width: 65%;
-        }
+        col:nth-child(1) { width: 18%; }
+        col:nth-child(2) { width: 12%; }
+        col:nth-child(3) { width: 8%;  }
+        col:nth-child(4) { width: 62%; }
 
         /* 折り返し禁止 */
-        th:nth-child(1),
-        td:nth-child(1) {
-            white-space: nowrap;
-        }
-
-        th:nth-child(2),
-        td:nth-child(2) {
-            white-space: nowrap;
-        }
+        th:nth-child(1), td:nth-child(1) { white-space: nowrap; }
+        th:nth-child(2), td:nth-child(2) { white-space: nowrap; }
+        th:nth-child(3), td:nth-child(3) { white-space: nowrap; text-align: center; }
 
         /* スマホ対応 */
         @media (max-width: 768px) {
-            body {
-                margin: 10px;
-            }
-
-            table {
-                font-size: 14px;
-            }
-
-            th,
-            td {
-                padding: 6px;
-            }
-
-            col:nth-child(1) {
-                width: 28%;
-            }
-
-            col:nth-child(2) {
-                width: 16%;
-            }
-
-            col:nth-child(3) {
-                width: 56%;
-            }
+            body { margin: 10px; }
+            table { font-size: 14px; }
+            th, td { padding: 6px; }
+            col:nth-child(1) { width: 24%; }
+            col:nth-child(2) { width: 14%; }
+            col:nth-child(3) { width: 10%; }
+            col:nth-child(4) { width: 52%; }
         }
 
-        /* 自動取得（発表なし） */
-        .auto-row {
-            background-color: #e6f4ea;
-        }
+        /*
+         * 行の背景色 — 気象庁新基準（令和8年5月29日〜）に準拠
+         *   レベル2 注意報  : 黄色  #f5e700
+         *   レベル3 警報    : 赤色  #ff2800
+         *   レベル4 危険警報: 紫色  #aa00aa
+         *   レベル5 特別警報: 黒色  #000000（白文字）
+         *   発表なし（自動）: 薄緑  #e6f4ea
+         */
+        .auto-row    { background-color: #e6f4ea; }
+        .level2-row  { background-color: #f5e700; color: #000; }
+        .level3-row  { background-color: #ff2800; color: #fff; }
+        .level4-row  { background-color: #aa00aa; color: #fff; }
+        .level5-row  { background-color: #000000; color: #fff; }
 
-        /* 注意報 */
-        .advisory-row {
-            background-color: #fff3cd;
+        /* レベルバッジ */
+        .level-badge {
+            display: inline-block;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.4);
         }
-
-        /* 警報 */
-        .warning-row {
-            background-color: #f8d7da;
-        }
+        .level-badge-2 { background-color: #f5e700; color: #000; border-color: #aaa; }
+        .level-badge-3 { background-color: #ff2800; color: #fff; }
+        .level-badge-4 { background-color: #aa00aa; color: #fff; }
+        .level-badge-5 { background-color: #000000; color: #fff; border-color: #666; }
     </style>
 </head>
 <body>
@@ -117,8 +100,8 @@
     <!-- VSCode/PyCharm 未使用セレクター警告対策 -->
     <div hidden>
         <span class="auto-row"></span>
-        <span class="advisory-row"></span>
-        <span class="warning-row"></span>
+        <span class="level2-row level3-row level4-row level5-row"></span>
+        <span class="level-badge level-badge-2 level-badge-3 level-badge-4 level-badge-5"></span>
     </div>
 
     <h1>大阪市 注意報・警報情報</h1>
@@ -129,15 +112,14 @@
 
     <table>
         <colgroup>
-            <col>
-            <col>
-            <col>
+            <col><col><col><col>
         </colgroup>
 
         <thead>
             <tr>
                 <th>取得日時</th>
                 <th>地域</th>
+                <th>レベル</th>
                 <th>注意報・警報</th>
             </tr>
         </thead>
@@ -145,12 +127,30 @@
         <tbody>
             {% for log in logs %}
 
-                {% set row_class = "" %}
+                {% set warnings_text = log.warnings_text %}
 
-                {% if "警報" in log.warnings_text %}
-                    {% set row_class = "warning-row" %}
-                {% elif "注意報" in log.warnings_text %}
-                    {% set row_class = "advisory-row" %}
+                {# 最高レベルを判定 #}
+                {% set max_level = 0 %}
+                {% if "レベル5" in warnings_text %}
+                    {% set max_level = 5 %}
+                {% elif "レベル4" in warnings_text %}
+                    {% set max_level = 4 %}
+                {% elif "レベル3" in warnings_text %}
+                    {% set max_level = 3 %}
+                {% elif "レベル2" in warnings_text or "注意報" in warnings_text %}
+                    {% set max_level = 2 %}
+                {% endif %}
+
+                {# 行の色 #}
+                {% set row_class = "" %}
+                {% if max_level == 5 %}
+                    {% set row_class = "level5-row" %}
+                {% elif max_level == 4 %}
+                    {% set row_class = "level4-row" %}
+                {% elif max_level == 3 %}
+                    {% set row_class = "level3-row" %}
+                {% elif max_level == 2 %}
+                    {% set row_class = "level2-row" %}
                 {% elif log.source == "auto" %}
                     {% set row_class = "auto-row" %}
                 {% endif %}
@@ -158,7 +158,12 @@
                 <tr class="{{ row_class }}">
                     <td>{{ log.checked_at[5:16] }}</td>
                     <td>{{ log.city_name }}</td>
-                    <td>{{ log.warnings_text }}</td>
+                    <td>
+                        {% if max_level > 0 %}
+                            <span class="level-badge level-badge-{{ max_level }}">Lv{{ max_level }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ warnings_text }}</td>
                 </tr>
 
             {% endfor %}

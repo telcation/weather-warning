@@ -17,9 +17,22 @@ BASE_PATH = os.getenv("APP_BASE_PATH", "").rstrip("/")
 app = Flask(__name__)
 
 
+def warnings_to_text_list(warnings: list[dict]) -> list[str]:
+    """warningsの辞書リストをDB保存用の文字列リストに変換する。
+    {"name": "大雨危険警報", "level": "4"} -> "レベル4 大雨危険警報"
+    {"name": "雷注意報",     "level": None} -> "雷注意報"
+    """
+    result = []
+    for w in warnings:
+        if w["level"]:
+            result.append(f"レベル{w['level']} {w['name']}")
+        else:
+            result.append(w["name"])
+    return result
+
+
 @app.before_request
 def redirect_without_base_path():
-    # /weather-warning でも /weather-warning/ へそろえる
     if BASE_PATH and request.path == BASE_PATH:
         return redirect(BASE_PATH + "/")
 
@@ -38,8 +51,7 @@ def index():
 @app.route("/fetch", methods=["POST"])
 def fetch_and_save():
     result = fetch_city_warnings()
-
-    # 画面ボタンからの取得
+    result["warnings"] = warnings_to_text_list(result["warnings"])
     save_result(result, source="manual")
 
     if BASE_PATH:
