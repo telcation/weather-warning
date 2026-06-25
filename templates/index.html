@@ -50,20 +50,25 @@
         col:nth-child(3) { width: 8%;  }
         col:nth-child(4) { width: 62%; }
 
-        /* 折り返し禁止 */
+        /* 折り返し禁止（レベル列は折り返し許可） */
         th:nth-child(1), td:nth-child(1) { white-space: nowrap; }
         th:nth-child(2), td:nth-child(2) { white-space: nowrap; }
-        th:nth-child(3), td:nth-child(3) { white-space: nowrap; text-align: center; }
+        th:nth-child(3), td:nth-child(3) { text-align: center; }
 
-        /* スマホ対応 */
+        /* レベルバッジ スマホでは小さく */
         @media (max-width: 768px) {
             body { margin: 10px; }
-            table { font-size: 14px; }
-            th, td { padding: 6px; }
-            col:nth-child(1) { width: 24%; }
+            table { font-size: 13px; }
+            th, td { padding: 5px; }
+            col:nth-child(1) { width: 26%; }
             col:nth-child(2) { width: 14%; }
-            col:nth-child(3) { width: 10%; }
-            col:nth-child(4) { width: 52%; }
+            col:nth-child(3) { width: 13%; }
+            col:nth-child(4) { width: 47%; }
+
+            .level-badge {
+                font-size: 11px;
+                padding: 2px 4px;
+            }
         }
 
         /*
