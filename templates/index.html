@@ -111,8 +111,9 @@
 
     <h1>大阪市 注意報・警報情報</h1>
 
-    <form action="{{ base_path }}/fetch" method="post">
+    <form action="{{ base_path }}/fetch" method="post" style="display: flex; align-items: center; gap: 16px;">
         <button type="submit">最新情報を取得</button>
+        <a href="https://www.data.jma.go.jp/multi/warn/warn_detail.html?code=270000&lang=jp" target="_blank" rel="noopener">気象庁 | 気象警報・注意報</a>
     </form>
 
     <table>
