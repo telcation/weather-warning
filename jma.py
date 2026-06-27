@@ -86,24 +86,28 @@ def load_warning_data():
 def fetch_city_warnings():
     data = load_warning_data()
 
-    # data はリスト。先頭要素（最新）を使う
-    latest = data[0]
+    # data はリスト。要素ごとに異なる種別の注意報・警報が格納されているため全要素をループする
+    warnings = []
+    found = False
 
-    for area in latest["warning"].get("class20Items", []):
-        if area.get("areaCode") == CITY_CODE:
-            warnings = []
-            for kind in area.get("kinds", []):
-                code = kind.get("code")
-                status = kind.get("status")
-                if status in ACTIVE_STATUSES:
-                    warnings.append({
-                        "name": WARNING_NAMES.get(code, f"不明コード:{code}"),
-                        "level": get_level(kind),  # "2","3","4","5" or None
-                    })
-            return {
-                "city_name": CITY_NAME,
-                "checked_at": datetime.now(JST).strftime("%Y-%m-%d %H:%M:%S"),
-                "warnings": warnings,
-            }
+    for item in data:
+        for area in item["warning"].get("class20Items", []):
+            if area.get("areaCode") == CITY_CODE:
+                found = True
+                for kind in area.get("kinds", []):
+                    code = kind.get("code")
+                    status = kind.get("status")
+                    if status in ACTIVE_STATUSES:
+                        warnings.append({
+                            "name": WARNING_NAMES.get(code, f"不明コード:{code}"),
+                            "level": get_level(kind),  # "2","3","4","5" or None
+                        })
 
-    raise ValueError(f"{CITY_NAME}コード({CITY_CODE})が見つかりません")
+    if not found:
+        raise ValueError(f"{CITY_NAME}コード({CITY_CODE})が見つかりません")
+
+    return {
+        "city_name": CITY_NAME,
+        "checked_at": datetime.now(JST).strftime("%Y-%m-%d %H:%M:%S"),
+        "warnings": warnings,
+    }
